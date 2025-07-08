@@ -134,7 +134,8 @@ def gate_biaxial(data, g1, g2, ind=None, vertical_gate=None, horizontal_gate=Non
         for hval,vval, lab in [[False, False, quadrant_gate['ll']], [True, False, quadrant_gate['lr']], [False, True, quadrant_gate['ul']], [True, True, quadrant_gate['ur']]]:
             tolab = (indh==hval) & (indv==vval)
             final_res.loc[tolab.index[tolab]] = lab
-            
+    else:
+        final_res = None
             
     if plot_labeled:
         fig = plt.figure(constrained_layout=True, figsize=(2.4, 2.), dpi=200)
