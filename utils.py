@@ -67,10 +67,10 @@ def compute_smooth_scatter_color(x, y, z, n_neighbors=5):
 
 
 def gate_biaxial(data, g1, g2, ind=None, vertical_gate=None, horizontal_gate=None, quadrant_gate=None,
-                 labfontsize=9, plot_labeled=False, upper_only=False, ax=None, xlim=None, ylim=None,
+                 labfontsize=9, plot_labeled=False, quadrants_to_plot='all', ax=None, xlim=None, ylim=None,
                  xlabel=None, ylabel=None):
     '''Make a biaxial density plot of the columns g1 and g2 in the pandas.DataFrame data. Optionally
-    gates the data points based on information in vertical_gate, horizontal_gate, or quadrant_gate'''
+    gates the data points based on information in vertical_gate, horizontal_gate, or quadrant_gate.'''
     cmap = plt.cm.hsv
     cmaplist = [cmap(i) for i in range(cmap.N)]
     cmaplist = cmaplist[0:round(len(cmaplist)*0.7)]
@@ -100,15 +100,12 @@ def gate_biaxial(data, g1, g2, ind=None, vertical_gate=None, horizontal_gate=Non
     
     if vertical_gate is not None:
         ax.hlines(y=vertical_gate['vthresh'], xmin=xlim[0], xmax=xlim[1], linestyle='--', color='k', linewidth=1)
-        ax.set_xlim(xlim)        
         initial_res = (data.loc[ind, g2]>vertical_gate['vthresh']).replace({True:vertical_gate['above_name'], False:vertical_gate['below_name']})
         final_res = ind.copy()
         final_res.loc[ind] = initial_res
         final_res.loc[~ind] = np.nan
     elif horizontal_gate is not None:
-        ax.vlines(x=horizontal_gate['hthresh'], ymin=ylim[0], ymax=ylim[1], linestyle='--', color='k', linewidth=1)
-        ax.set_ylim(ylim)
-        
+        ax.vlines(x=horizontal_gate['hthresh'], ymin=ylim[0], ymax=ylim[1], linestyle='--', color='k', linewidth=1)        
         initial_res = (data.loc[ind, g1]>horizontal_gate['hthresh']).replace({False:horizontal_gate['left_name'], True:horizontal_gate['right_name']})
         final_res = ind.copy()
         final_res.loc[ind] = initial_res
@@ -116,17 +113,15 @@ def gate_biaxial(data, g1, g2, ind=None, vertical_gate=None, horizontal_gate=Non
         
         
     elif quadrant_gate is not None:
-        if not upper_only:
+        if quadrants_to_plot == 'all':
             ax.hlines(y=quadrant_gate['vthresh'], xmin=xlim[0]-1, xmax=xlim[1]+1, linestyle='--', color='k', linewidth=1)
-            ax.set_xlim(xlim)
             ax.vlines(x=quadrant_gate['hthresh'], ymin=ylim[0]-1, ymax=ylim[1]+1, linestyle='--', color='k', linewidth=1)
-            ax.set_ylim(ylim)
-        else:
+        elif quadrants_to_plot == 'ur':
             ax.hlines(y=quadrant_gate['vthresh'], xmin=quadrant_gate['hthresh'], xmax=xlim[1]+1, linestyle='--', color='k', linewidth=1)
-            ax.set_xlim(xlim)
             ax.vlines(x=quadrant_gate['hthresh'], ymin=quadrant_gate['vthresh'], ymax=ylim[1]+1, linestyle='--', color='k', linewidth=1)
-            ax.set_ylim(ylim)            
-            
+        elif quadrants_to_plot == 'ul':
+            ax.hlines(y=quadrant_gate['vthresh'], xmin=xlim[0], xmax=quadrant_gate['hthresh'], linestyle='--', color='k', linewidth=1)
+            ax.vlines(x=quadrant_gate['hthresh'], ymin=quadrant_gate['vthresh'], ymax=ylim[1]+1, linestyle='--', color='k', linewidth=1)
 
         indh = data.loc[ind, g1]> quadrant_gate['hthresh']
         indv = data.loc[ind, g2]> quadrant_gate['vthresh']
@@ -136,6 +131,9 @@ def gate_biaxial(data, g1, g2, ind=None, vertical_gate=None, horizontal_gate=Non
             final_res.loc[tolab.index[tolab]] = lab
     else:
         final_res = None
+
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
             
     if plot_labeled:
         fig = plt.figure(constrained_layout=True, figsize=(2.4, 2.), dpi=200)
