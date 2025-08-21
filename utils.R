@@ -5,7 +5,8 @@ library(Seurat)
 
 export_seurat_slot_to_10x <- function(seurat_obj, 
                                       slot = "counts", 
-                                      output_dir) {
+                                      output_dir,
+                                      compress = TRUE) {
   # Create output directory
   if (!dir.exists(output_dir)) {
     dir.create(output_dir, recursive = TRUE)
@@ -40,6 +41,15 @@ export_seurat_slot_to_10x <- function(seurat_obj,
   
   cat("Exported", slot, "slot to:", output_dir, "\n")
   cat("Matrix dimensions:", nrow(expr_matrix), "x", ncol(expr_matrix), "\n")
+
+  if (compress) {
+    # Write compressed files
+    system(paste("gzip", file.path(output_dir, "matrix.mtx")))
+    system(paste("gzip", file.path(output_dir, "barcodes.tsv")))
+    system(paste("gzip", file.path(output_dir, "features.tsv")))
+  }
+
+
 }
 
 
