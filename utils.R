@@ -1,5 +1,48 @@
 library(SingleCellExperiment)
 library(Matrix)
+library(Seurat)
+
+
+export_seurat_slot_to_10x <- function(seurat_obj, 
+                                      slot = "counts", 
+                                      output_dir) {
+  # Create output directory
+  if (!dir.exists(output_dir)) {
+    dir.create(output_dir, recursive = TRUE)
+  }
+  
+  # Get data from specified slot
+  expr_matrix <- GetAssayData(seurat_obj, slot = slot)
+  
+  # Ensure it's a sparse matrix
+  if (!inherits(expr_matrix, "sparseMatrix")) {
+    expr_matrix <- Matrix(expr_matrix, sparse = TRUE)
+  }
+  
+  # Create features dataframe
+  features_df <- data.frame(
+    gene_id = rownames(expr_matrix),
+    gene_symbol = rownames(expr_matrix),
+    feature_type = "Gene Expression"
+  )
+  
+  # Create barcodes dataframe
+  barcodes_df <- data.frame(
+    barcode = colnames(expr_matrix)
+  )
+  
+  # Write files
+  writeMM(expr_matrix, file.path(output_dir, "matrix.mtx"))
+  write.table(barcodes_df, file.path(output_dir, "barcodes.tsv"),
+              quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
+  write.table(features_df, file.path(output_dir, "features.tsv"),
+              quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
+  
+  cat("Exported", slot, "slot to:", output_dir, "\n")
+  cat("Matrix dimensions:", nrow(expr_matrix), "x", ncol(expr_matrix), "\n")
+}
+
+
 
 export_sce <- function(sce, filepath_prefix) {
     # Export expression matrix to Matrix Market format
