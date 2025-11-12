@@ -123,8 +123,14 @@ def gate_biaxial(data, g1, g2, ind=None, vertical_gate=None, horizontal_gate=Non
             ax.hlines(y=quadrant_gate['vthresh'], xmin=xlim[0], xmax=quadrant_gate['hthresh'], linestyle='--', color='k', linewidth=1)
             ax.vlines(x=quadrant_gate['hthresh'], ymin=quadrant_gate['vthresh'], ymax=ylim[1]+1, linestyle='--', color='k', linewidth=1)
         elif quadrants_to_plot == 'lr':
-            ax.hlines(y=quadrant_gate['vthresh'], xmin=xlim[0], xmax=quadrant_gate['hthresh'], linestyle='--', color='k', linewidth=1)
+            ax.hlines(y=quadrant_gate['vthresh'], xmin=quadrant_gate['hthresh'], xmax=xlim[1]+1, linestyle='--', color='k', linewidth=1)
             ax.vlines(x=quadrant_gate['hthresh'], ymin=ylim[0]-1, ymax=quadrant_gate['vthresh'], linestyle='--', color='k', linewidth=1)
+        elif quadrants_to_plot == 'll':
+            ax.hlines(y=quadrant_gate['vthresh'], xmin=xlim[0]-1, xmax=quadrant_gate['hthresh'], linestyle='--', color='k', linewidth=1)
+            ax.vlines(x=quadrant_gate['hthresh'], ymin=ylim[0], ymax=quadrant_gate['vthresh'], linestyle='--', color='k', linewidth=1)
+        else:
+            raise Exception('Invalid quadrants_to_plot argument. Please use: all, ur, ul, lr, ll')
+
 
 
         indh = data.loc[ind, g1]> quadrant_gate['hthresh']
