@@ -31,6 +31,8 @@ export_seurat_slot_to_10x <- function(seurat_obj,
   barcodes_df <- data.frame(
     barcode = colnames(expr_matrix)
   )
+
+  meta_df <- seurat_obj@meta.data
   
   # Write files
   writeMM(expr_matrix, file.path(output_dir, "matrix.mtx"))
@@ -38,6 +40,8 @@ export_seurat_slot_to_10x <- function(seurat_obj,
               quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
   write.table(features_df, file.path(output_dir, "features.tsv"),
               quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
+  write.table(meta_df, file.path(output_dir, "metadata.tsv"),
+              quote = FALSE, row.names = TRUE, col.names = TRUE, sep = "\t")
   
   cat("Exported", slot, "slot to:", output_dir, "\n")
   cat("Matrix dimensions:", nrow(expr_matrix), "x", ncol(expr_matrix), "\n")
